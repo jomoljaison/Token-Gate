@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Secret Area</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+  <p>Wallet Address - <span id="wallet-address"></span></p>
+  <button id="connectWallet">Connect</button>
+  <button id="reveal">Show Secret</button>
+  <p>Secret message - <span id="secret"></span></p>
+
+  <script type="text/javascript">
+    // 1. Connect metamask to our site. Get the user's address
+    var account = null;
+
+    const connect = async () => {
+      if (window.ethereum) {
+        await window.ethereum.send('eth_requestAccounts');
+        window.web3 = new Web3(window.ethereum);
+
+        var accounts = await web3.eth.getAccounts();
+        account = accounts[0];
+        document.getElementById('wallet-address').textContent = account;
+        document.getElementById('reveal').onclick = revealMsg
+      }
+    }
+
+    const revealMsg = async () => {
+      var signature = await web3.eth.personal.sign("Message to sign", account)
+
+
+      var res = await fetch('/secret?signature=' + signature)
+      var body = await res.text()
+
+      document.getElementById('secret').textContent = body
+    }
+
+    document.getElementById('connectWallet').onclick = connect
+
+
+
+  </script>
+</body>
+</html>
